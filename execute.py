@@ -1,4 +1,2 @@
-"""(python -m execute args1...)"""
+"""(python -m execute project job args1...)"""
 
-yaml_file = ''
-job_name = ''
