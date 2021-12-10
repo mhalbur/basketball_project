@@ -10,8 +10,17 @@ PLAYERS
 # create players staging table
 execute_sql(sql_file_path=DDL_FILE_PATH, sql_file_name="nba_players_st.sql")
 
+# create players table
+execute_sql(sql_file_path=DDL_FILE_PATH, sql_file_name="nba_players.sql")
+
 # insert fresh data into staging table
 stage_nba_players()
+
+# delete players data
+execute_sql(sql_file_path=RESOURCES, sql_file_name="players_delete.sql")
+
+# apply players data
+execute_sql(sql_file_path=RESOURCES, sql_file_name="players_apply.sql")
 
 """
 TEAMS
@@ -41,4 +50,4 @@ execute_sql(sql_file_path=DDL_FILE_PATH, sql_file_name="nba_games.sql")
 stage_nba_games()
 
 # apply to games table
-# execute_sql(database_file=DATABASE_FILE, sql_file_path=RESOURCES, sql_file_name="games_apply.sql")
+execute_sql(sql_file_path=RESOURCES, sql_file_name="games_apply.sql")

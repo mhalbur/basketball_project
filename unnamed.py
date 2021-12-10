@@ -1,3 +1,5 @@
+import arrow
+
 from database import execute_sql, read_sql_file, clean_table
 from functools import wraps
 
@@ -94,8 +96,16 @@ def load_nba_players():
 """
 GAMES
 """
+def get_max_game_date():
+    database_obj = execute_sql(sql="select max(game_date) from nba_games")
+    for date in database_obj:
+        dt = arrow.get(date[0]) 
+        update_dt = dt.shift(days=-2)
+        return update_dt.format('YYYY-MM-DD')
+
 def get_nba_games():
-    game_logs = leaguegamelog.LeagueGameLog()
+    max_date = get_max_game_date()
+    game_logs = leaguegamelog.LeagueGameLog(date_from_nullable=max_date)
     logs = game_logs.get_normalized_dict()
     for game in logs['LeagueGameLog']:
         yield game
@@ -158,3 +168,5 @@ def stage_nba_games():
 
     for row in format_game_data:
         loader.send(row)
+
+# stage_nba_games()
