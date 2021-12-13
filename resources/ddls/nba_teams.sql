@@ -3,5 +3,7 @@ create table if not exists nba_teams(
     team_name string,
     abbr string,
     city string,
-    state string
+    state string,
+    latitude string,
+    longitude string
 );

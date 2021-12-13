@@ -1,1 +1,1 @@
-delete from "{table}";
+delete from {table};

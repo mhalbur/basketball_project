@@ -1,4 +1,4 @@
-delete from nba_players a
+delete from nba_players as a
 where 
     not exists(
         select 1

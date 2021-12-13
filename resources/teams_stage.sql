@@ -4,7 +4,9 @@ insert into working_nba_teams_st
         team_name,
         abbr,
         city,
-        state
+        state,
+        latitude,
+        longitude
     )
 values
     (
@@ -12,6 +14,8 @@ values
         "{team_name}",
         "{abbr}",
         "{city}",
-        "{state}"
+        "{state}",
+        "{latitude}",
+        "{longitude}"
     )
 ;

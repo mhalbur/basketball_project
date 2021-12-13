@@ -4,5 +4,7 @@ select
     team_name,
     abbr,
     city,
-    state
+    state,
+    latitude,
+    longitude
 from working_nba_teams_st;
