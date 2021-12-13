@@ -32,7 +32,7 @@ execute_sql(sql_file_path=DDL_FILE_PATH, sql_file_name="nba_teams_distance.sql")
 # insert fresh data into staging table
 stage_nba_teams_distances
 
-apply teams distance data
+# apply teams distance data
 execute_sql(sql_file_path=RESOURCES, sql_file_name="teams_distances_apply.sql")
 
 
@@ -54,7 +54,7 @@ execute_sql(sql_file_path=RESOURCES, sql_file_name="games_apply.sql")
 """
 PLAYERS
 """
-# # create players staging table
+# create players staging table
 execute_sql(sql_file_path=DDL_FILE_PATH, sql_file_name="nba_players_st.sql")
 
 # create players table
