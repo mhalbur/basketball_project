@@ -1,4 +1,4 @@
-create table if not exists nba_teams_distance(
+create table if not exists teams_distance(
     team_id,
     "1610612737",
     "1610612738",

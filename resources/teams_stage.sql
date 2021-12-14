@@ -1,4 +1,4 @@
-insert into working_nba_teams_st
+insert into working_teams_st
     (
         team_id,
         team_name,

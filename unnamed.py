@@ -6,7 +6,7 @@ from functools import wraps
 from geopy.distance import great_circle
 from geopy.geocoders import Nominatim
 from nba_api.stats.static import teams
-from nba_api.stats.endpoints import commonteamroster, leaguegamelog
+from nba_api.stats.endpoints import commonteamroster, leaguegamelog, boxscoretraditionalv2
 
 
 def coroutine(func):
@@ -78,7 +78,7 @@ PLAYERS
 def get_nba_players(data):
     for row in data:
         team_id = row['id']
-        roster = commonteamroster.CommonTeamRoster(team_id=team_id);
+        roster = commonteamroster.CommonTeamRoster(team_id=team_id)
         roster_dict = roster.get_normalized_dict()
         for nba_player in roster_dict['CommonTeamRoster']:
             yield nba_player
@@ -122,12 +122,12 @@ GAMES
 """
 def get_max_game_date():
     try: 
-        database_obj = execute_sql(sql="select max(game_date) from nba_games")
+        database_obj = execute_sql(sql="select max(game_date) from games")
         for date in database_obj:
             dt = arrow.get(date[0]) 
             update_dt = dt.shift(days=-2)
             return update_dt.format('YYYY-MM-DD')
-    except TypeError as ex:
+    except TypeError:
         return '2021-10-01'
 
 
@@ -220,7 +220,57 @@ def load_nba_team_distances():
                                  t1610612765 = row[1610612765],
                                  t1610612766 = row[1610612766] 
                                 )
-        print(load_sql)
+        execute_sql(database_file="nba_basketball.db", sql=load_sql)
+
+
+"""
+BOXSCORE PLAYER
+"""
+def get_boxscore(game_id, type):
+    boxscore_dataset = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=f"00{game_id}")
+    boxscore = boxscore_dataset.get_normalized_dict()
+    for row in boxscore[type]:
+        yield row
+
+
+def format_boxscore(data):
+    for row in data:
+        player = {}
+        player["game_id"] = row["GAME_ID"]
+        player["team_id"] = row["TEAM_ID"]
+        player["player_id"] = row["PLAYER_ID"]
+        player["start_position"] = row["START_POSITION"]
+        player["min"] = row["MIN"]
+        player["fgm"] = row["FGM"]
+        player["fga"] = row["FGA"]
+        player["fg_pct"] = row["FG_PCT"]
+        player["fg3m"] = row["FG3M"]
+        player["fg3a"] = row["FG3A"]
+        player["fg3_pct"] = row["FG3_PCT"]
+        player["ftm"] = row["FTM"]
+        player["fta"] = row["FTA"]
+        player["ft_pct"] = row["FT_PCT"]
+        player["oreb"] = row["OREB"]
+        player["dreb"] = row["DREB"]
+        player["reb"] = row["REB"]
+        player["ast"] = row["AST"]
+        player["stl"] = row["STL"]
+        player["blk"] = row["BLK"]
+        player["to"] = row["TO"]
+        player["pf"] = row["PF"]
+        player["pts"] = row["PTS"]
+        player["plus_minus"] = row["PLUS_MINUS"]
+        yield player
+
+
+# IN PROGRESS NOT COMPLETE
+@coroutine
+def load_boxscore_players():
+    while True:
+        row = yield
+        load_sql = read_sql_file(file_path='', 
+                                 game_id=row['game_id'],
+                                 )
         execute_sql(database_file="nba_basketball.db", sql=load_sql)
 
 
@@ -266,4 +316,14 @@ def stage_nba_teams_distances():
     for row in team_info:
         loader.send(row)
 
-# stage_nba_teams_distances()
+
+def stage_boxscore_player():
+    data = get_boxscore(game_id = 22100047, type="PlayerStats")
+    formatter = format_boxscore(data=data)
+    loader = load_boxscore_players
+
+    for row in formatter:
+        loader.send(row)
+
+
+# stage_boxscore_player()

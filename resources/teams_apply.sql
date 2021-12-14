@@ -1,4 +1,4 @@
-insert into nba_teams
+insert into teams
 select
     team_id,
     team_name,
@@ -7,4 +7,4 @@ select
     state,
     latitude,
     longitude
-from working_nba_teams_st;
+from working_teams_st;

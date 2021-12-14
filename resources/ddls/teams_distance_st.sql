@@ -1,4 +1,4 @@
-create table if not exists working_nba_teams_distance_st(
+create table if not exists working_teams_distance_st(
     team_id int,
     "1610612737" number(6,2),
     "1610612738" number(6,2),

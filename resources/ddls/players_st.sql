@@ -1,4 +1,4 @@
-create table if not exists nba_players(
+create table if not exists working_players_st(
     player_id int,
     team_id int,
     first_name string,

@@ -1,4 +1,4 @@
-insert into working_nba_teams_distance_st(
+insert into working_teams_distance_st(
     team_id,
     "1610612737",
     "1610612738",

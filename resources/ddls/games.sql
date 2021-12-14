@@ -1,4 +1,4 @@
-create table if not exists working_nba_games_st(
+create table if not exists games(
     game_id int,
     season_id int,
     game_date date,

@@ -1,4 +1,4 @@
-insert into working_nba_games_st
+insert into working_games_st
     (
         game_id,
         season_id,

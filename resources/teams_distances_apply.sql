@@ -1,4 +1,4 @@
-insert into nba_teams_distance
+insert into teams_distance
 select 
     team_id,
     "1610612737",
@@ -31,4 +31,4 @@ select
     "1610612764",
     "1610612765",
     "1610612766"
-from working_nba_teams_distance_st;
+from working_teams_distance_st;
