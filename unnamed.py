@@ -1,21 +1,14 @@
 import arrow
 
-from database import execute_sql, read_sql_file, clean_table, select_sql
-from functools import wraps
-
 from geopy.distance import great_circle
 from geopy.geocoders import Nominatim
 from nba_api.stats.static import teams
 from nba_api.stats.endpoints import commonteamroster, leaguegamelog, boxscoretraditionalv2
 
+from config import boxscore_players_fields, nba_games
+from database import execute_sql, read_sql_file, clean_table, select_sql
+from infrastructure import formatter
 
-def coroutine(func):
-    @wraps(func)
-    def primer(*args, **kwargs):
-        gen = func(*args, **kwargs)
-        next(gen)
-        return gen
-    return primer
 
 
 """
@@ -139,16 +132,6 @@ def get_nba_games():
         yield game
 
 
-def format_nba_games(data):
-    for game in data:
-        game_log = {}
-        game_log["season_id"] = game['SEASON_ID']
-        game_log["game_id"] = game['GAME_ID']
-        game_log["game_date"] = game["GAME_DATE"]
-        game_log["matchup"] = game["MATCHUP"]
-        yield game_log
-
-
 @coroutine
 def load_nba_games():
     while True:
@@ -233,44 +216,42 @@ def get_boxscore(game_id, type):
         yield row
 
 
-def format_boxscore(data):
-    for row in data:
-        player = {}
-        player["game_id"] = row["GAME_ID"]
-        player["team_id"] = row["TEAM_ID"]
-        player["player_id"] = row["PLAYER_ID"]
-        player["start_position"] = row["START_POSITION"]
-        player["min"] = row["MIN"]
-        player["fgm"] = row["FGM"]
-        player["fga"] = row["FGA"]
-        player["fg_pct"] = row["FG_PCT"]
-        player["fg3m"] = row["FG3M"]
-        player["fg3a"] = row["FG3A"]
-        player["fg3_pct"] = row["FG3_PCT"]
-        player["ftm"] = row["FTM"]
-        player["fta"] = row["FTA"]
-        player["ft_pct"] = row["FT_PCT"]
-        player["oreb"] = row["OREB"]
-        player["dreb"] = row["DREB"]
-        player["reb"] = row["REB"]
-        player["ast"] = row["AST"]
-        player["stl"] = row["STL"]
-        player["blk"] = row["BLK"]
-        player["to"] = row["TO"]
-        player["pf"] = row["PF"]
-        player["pts"] = row["PTS"]
-        player["plus_minus"] = row["PLUS_MINUS"]
-        yield player
-
-
 # IN PROGRESS NOT COMPLETE
 @coroutine
 def load_boxscore_players():
     while True:
         row = yield
-        load_sql = read_sql_file(file_path='', 
+        for key in row:
+            if row[key] is None:
+                row[key] = 0
+            elif row[key] == '':
+                row[key] = "NULL"
+        load_sql = read_sql_file(file_path='resources/boxscore_player_stage.sql', 
                                  game_id=row['game_id'],
-                                 )
+                                 team_id = row["team_id"],
+                                 player_id = row["player_id"],
+                                 start_position = row["start_position"],
+                                 min = row["min"],
+                                 fgm = row["fgm"],
+                                 fga = row["fga"],
+                                 fg_pct = row["fg_pct"],
+                                 fg3m = row["fg3m"],
+                                 fg3a = row["fg3a"],
+                                 fg3_pct = row["fg3_pct"],
+                                 ftm = row["ftm"],
+                                 fta = row["fta"],
+                                 ft_pct = row["ft_pct"],
+                                 oreb = row["oreb"],
+                                 dreb = row["dreb"],
+                                 reb = row["reb"],
+                                 ast = row["ast"],
+                                 stl = row["stl"],
+                                 blk = row["blk"],
+                                 to = row["to"],
+                                 pf = row["pf"],
+                                 pts = row["pts"],
+                                 plus_minus = row["plus_minus"])
+        # print(load_sql)
         execute_sql(database_file="nba_basketball.db", sql=load_sql)
 
 
@@ -301,10 +282,10 @@ def stage_nba_players():
 def stage_nba_games():
     clean_table(table="working_nba_games_st")
     game_data = get_nba_games()
-    format_game_data = format_nba_games(data=game_data)
+    format = formatter(data=game_data, fields=nba_games)
     loader = load_nba_games()
 
-    for row in format_game_data:
+    for row in format:
         loader.send(row)
 
 
@@ -318,12 +299,13 @@ def stage_nba_teams_distances():
 
 
 def stage_boxscore_player():
+    clean_table(table="working_boxscore_player_st")
     data = get_boxscore(game_id = 22100047, type="PlayerStats")
-    formatter = format_boxscore(data=data)
-    loader = load_boxscore_players
+    format = formatter(data=data, fields=boxscore_players_fields)
+    loader = load_boxscore_players()
 
-    for row in formatter:
+    for row in format:
         loader.send(row)
 
 
-# stage_boxscore_player()
+stage_boxscore_player()

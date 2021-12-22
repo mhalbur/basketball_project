@@ -12,7 +12,7 @@ def execute_sql(database_file="nba_basketball.db", sql_file_path=None, sql_file_
         file_path = f"{sql_file_path}/{sql_file_name}"
         sql = read_sql_file(file_path=file_path)
 
-    print(sql)
+    # print(sql)
 
     with connection:
         cnt = connection.execute(sql).rowcount
@@ -35,11 +35,11 @@ def select_sql(database_file="nba_basketball.db", sql_file_path=None, sql_file_n
 
     rows = cur.fetchall()
 
-    print(f"{len(rows)} rows selected...")
+    # print(f"{len(rows)} rows selected...")
     return rows
 
 
 def clean_table(table):
     sql = read_sql_file(file_path="resources/templates/delete_all.sql",  table=table)
-    print(table)
+    # print(table)
     execute_sql(sql=sql)

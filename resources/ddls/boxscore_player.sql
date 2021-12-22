@@ -1,4 +1,4 @@
-create table if not exists working_boxscore_player_st(
+create table if not exists boxscore_player(
     GAME_ID int,
     TEAM_ID int,
     PLAYER_ID int,
