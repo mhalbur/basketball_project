@@ -1,4 +1,4 @@
-from database import execute_sql
+from sqlite3 import execute_sql
 from unnamed import stage_nba_team, stage_nba_players, stage_nba_games, stage_nba_teams_distances
 
 DDL_FILE_PATH = "resources/ddls"

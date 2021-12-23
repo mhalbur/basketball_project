@@ -1,7 +1,6 @@
 """(python -m execute project job args1...)"""
 import sys 
-import ruamel.yaml
-from pathlib import Path 
+import yaml
 
 class Executor():
     def __init__(self):
@@ -12,22 +11,21 @@ class Executor():
         print(f'Prepping to run {self.project}:{self.job}...')
 
     def read_yaml_file(self):
-        yaml = ruamel.yaml.YAML()
-        print(yaml)
-        yaml.allow_duplicate_keys = True
-        with open(self.path) as fp:
-            data = yaml.load(fp)
-            print(data)
+        with open(self.path) as file:
+            return yaml.load(file, Loader=yaml.FullLoader)
 
-    def find_yaml_job():
-        return ''
-
-
-    def get_job_details():
-        return ''
+    def find_yaml_job(self):
+        jobs = self.read_yaml_file()['Jobs']
+        for job in jobs:
+            if job['Name'].lower() == self.job:
+                return job
+ 
+    def extract_job_details(self):
+        job = self.find_yaml_job()
+        
 
 
     def run_job():
         return ''
 
-Executor().read_yaml_file()
+Executor().find_yaml_job()

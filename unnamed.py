@@ -6,8 +6,8 @@ from nba_api.stats.static import teams
 from nba_api.stats.endpoints import commonteamroster, leaguegamelog, boxscoretraditionalv2
 
 from config import boxscore_players_fields, nba_games
-from database import execute_sql, read_sql_file, clean_table, select_sql
-from infrastructure import formatter
+from packages.connectors.sqlite3 import execute_sql, read_sql_file, clean_table, select_sql
+from packages.infrastructure import formatter
 
 
 
