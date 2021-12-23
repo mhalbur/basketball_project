@@ -1,0 +1,25 @@
+insert into working_players_st
+    (
+        player_id,
+        team_id,
+        first_name,
+        last_name,
+        jersey_number,
+        position,
+        age,
+        height,
+        experience
+    )
+values
+    (
+        "{player_id}",
+        "{team_id}",
+        "{first_name}",
+        "{last_name}",
+        "{jersey_number}",
+        "{position}",
+        "{age}",
+        "{height}",
+        "{experience}"
+    )
+;

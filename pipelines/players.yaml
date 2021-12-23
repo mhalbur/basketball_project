@@ -1,0 +1,8 @@
+Project: Players
+
+Jobs:
+- Name: Players_API_Extract
+  Description: Retrieves NBA Players
+
+- Name: Players_Apply
+  Description: Merges NBA Players into ...
