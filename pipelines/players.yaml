@@ -1,8 +1,14 @@
 Project: Players
 
 Jobs:
+- Name: Players_Install_Script
+  Description: Retrieves NBA Players
+  Function: install_script
+
 - Name: Players_API_Extract
   Description: Retrieves NBA Players
+  Function: stage_nba_players
 
 - Name: Players_Apply
-  Description: Merges NBA Players into ...
+  Description: Merges NBA Players into players table
+  Function: apply_nba_players

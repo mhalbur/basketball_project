@@ -1,4 +1,5 @@
 """(python -m execute project job args1...)"""
+import importlib
 import sys 
 import yaml
 
@@ -6,6 +7,7 @@ class Executor():
     def __init__(self):
         self.configuration_path = "pipelines"
         self.project = sys.argv[1].lower()
+        self.package_path = f"projects.{self.project}.tasks"
         self.job = sys.argv[2].lower()
         self.path = f"{self.configuration_path}/{self.project}.yaml"
         print(f'Prepping to run {self.project}:{self.job}...')
@@ -22,10 +24,17 @@ class Executor():
  
     def extract_job_details(self):
         job = self.find_yaml_job()
-        
+        function = job['Function']
+        print(f'Running {function} from {self.package_path}...')
+        return function
+
+    def run_job(self):
+        function = self.extract_job_details()
+        module =  __import__(self.package_path, fromlist=[function])
+        return getattr(module, function)
 
 
-    def run_job():
-        return ''
+if __name__ == "__main__":
+    method = Executor().run_job()
+    method()
 
-Executor().find_yaml_job()
