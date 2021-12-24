@@ -20,5 +20,5 @@ def stage_nba_players():
 
 
 def apply_nba_players():
-    execute_sql(sql_file_path=RESOURCES, sql_file_name='players_apply.sql')
+    execute_sql(sql_file_path=RESOURCES, sql_file_name='players_delete.sql')
     execute_sql(sql_file_path=RESOURCES, sql_file_name='players_apply.sql')

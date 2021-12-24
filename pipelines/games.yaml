@@ -1,0 +1,14 @@
+Project: Games
+
+Jobs:
+- Name: Games_Install_Script
+  Description: Retrieves NBA Games
+  Function: install_script
+
+- Name: Games_API_Extract
+  Description: Retrieves NBA Games
+  Function: stage_nba_games
+
+- Name: Games_Apply
+  Description: Merges NBA Games into games table
+  Function: apply_nba_games

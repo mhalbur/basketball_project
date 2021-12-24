@@ -24,9 +24,13 @@ class Executor():
  
     def extract_job_details(self):
         job = self.find_yaml_job()
-        function = job['Function']
-        print(f'Running {function} from {self.package_path}...')
-        return function
+        try:
+            function = job['Function']
+            print(f'Running {function} from {self.package_path}...')
+            return function
+        except TypeError:
+            raise Exception(f'{self.job} not found in {self.project}')
+          
 
     def run_job(self):
         function = self.extract_job_details()

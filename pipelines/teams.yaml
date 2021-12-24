@@ -1,0 +1,14 @@
+Project: Teams
+
+Jobs:
+- Name: Teams_Install_Script
+  Description: Retrieves NBA Teams
+  Function: install_script
+
+- Name: Teams_API_Extract
+  Description: Retrieves NBA Teams
+  Function: stage_nba_teams
+
+- Name: Teams_Apply
+  Description: Merges NBA Teams into teams table
+  Function: apply_nba_teams

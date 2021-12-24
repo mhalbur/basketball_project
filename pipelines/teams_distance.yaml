@@ -1,0 +1,14 @@
+Project: Teams_Distance
+
+Jobs:
+- Name: Teams_Distance_Install_Script
+  Description: Retrieves NBA Teams_Distance
+  Function: install_script
+
+- Name: Teams_Distance_API_Extract
+  Description: Retrieves NBA Teams_Distance
+  Function: stage_nba_teams_distance
+
+- Name: Teams_Distance_Apply
+  Description: Merges NBA Teams_Distance into teams_distance table
+  Function: apply_nba_teams_distance
