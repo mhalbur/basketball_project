@@ -1,6 +1,5 @@
 """(python -m execute project job args1...)"""
-import importlib
-import sys 
+import sys
 import yaml
 
 class Executor():
@@ -21,7 +20,7 @@ class Executor():
         for job in jobs:
             if job['Name'].lower() == self.job:
                 return job
- 
+
     def extract_job_details(self):
         job = self.find_yaml_job()
         try:
@@ -30,8 +29,7 @@ class Executor():
             return function
         except TypeError:
             raise Exception(f'{self.job} not found in {self.project}')
-          
-
+     
     def run_job(self):
         function = self.extract_job_details()
         module =  __import__(self.package_path, fromlist=[function])
@@ -41,4 +39,3 @@ class Executor():
 if __name__ == "__main__":
     method = Executor().run_job()
     method()
-

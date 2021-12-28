@@ -1,5 +1,5 @@
 from nba_api.stats.endpoints import boxscoretraditionalv2
-from packages.connectors.sqlite3 import execute_sql, read_sql_file
+from packages.connectors.sqlite import execute_sql, read_sql_file
 from packages.infrastructure import coroutine
 
 

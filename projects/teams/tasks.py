@@ -1,5 +1,5 @@
 import projects.teams.custom as teams
-from packages.connectors.sqlite3 import clean_table, execute_sql
+from packages.connectors.sqlite import clean_table, execute_sql
 
 
 RESOURCES = 'projects/teams/resources'

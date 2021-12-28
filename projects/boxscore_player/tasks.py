@@ -1,5 +1,5 @@
 import projects.boxscore_player.custom as bsp
-from packages.connectors.sqlite3 import clean_table, execute_sql
+from packages.connectors.sqlite import clean_table, execute_sql
 from packages.infrastructure import formatter
 
 #HATE THIS... NEED TO SET UP A CONFIG

@@ -1,6 +1,6 @@
 from geopy.geocoders import Nominatim
 from nba_api.stats.static import teams
-from packages.connectors.sqlite3 import execute_sql, read_sql_file
+from packages.connectors.sqlite import execute_sql, read_sql_file
 from packages.infrastructure import coroutine
 
 

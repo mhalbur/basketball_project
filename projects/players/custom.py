@@ -1,5 +1,5 @@
 from nba_api.stats.endpoints import commonteamroster
-from packages.connectors.sqlite3 import execute_sql, read_sql_file
+from packages.connectors.sqlite import SQLite3
 from packages.common import get_nba_teams
 from packages.infrastructure import coroutine
 
@@ -11,7 +11,7 @@ def get_nba_players(data):
         roster_dict = roster.get_normalized_dict()
         for nba_player in roster_dict['CommonTeamRoster']:
             yield nba_player
-            
+
 
 def format_nba_players(data):
     for nba_player in data:
@@ -33,14 +33,15 @@ def format_nba_players(data):
 def load_nba_players():
     while True:
         row = yield
-        load_sql = read_sql_file(file_path='projects/players/resources/players_stage.sql', 
-                                 player_id=row['player_id'],
-                                 team_id=row['team_id'],
-                                 first_name=row['first_name'],
-                                 last_name=row['last_name'],
-                                 jersey_number=row['jersey_number'],
-                                 position=row['position'],
-                                 age=row['age'],
-                                 height=row['height'],
-                                 experience=row['experience'])
-        execute_sql(database_file="nba_basketball.db", sql=load_sql)
+        with SQLite3() as db:
+            db.execute_sql(sql_file_path='projects/players/resources',
+                           sql_file_name='players_stage.sql',
+                           player_id=row['player_id'],
+                           team_id=row['team_id'],
+                           first_name=row['first_name'],
+                           last_name=row['last_name'],
+                           jersey_number=row['jersey_number'],
+                           position=row['position'],
+                           age=row['age'],
+                           height=row['height'],
+                           experience=row['experience'])

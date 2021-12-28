@@ -1,5 +1,5 @@
 from geopy.distance import great_circle
-from packages.connectors.sqlite3 import execute_sql, read_sql_file, select_sql
+from packages.connectors.sqlite import execute_sql, read_sql_file, select_sql
 from packages.infrastructure import coroutine
 
 def get_team_info():
