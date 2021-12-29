@@ -1,7 +1,7 @@
 from nba_api.stats.endpoints import boxscoretraditionalv2
 from packages.connectors.sqlite import SQLite3
-from packages.infrastructure import coroutine
-from packages.infrastructure import formatter
+from generic.infrastructure import coroutine
+from generic.infrastructure import formatter
 from projects.boxscore_player.config import boxscore_players_fields
 
 

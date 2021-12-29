@@ -1,6 +1,6 @@
 from geopy.distance import great_circle
 from packages.connectors.sqlite import SQLite3
-from packages.infrastructure import coroutine
+from generic.infrastructure import coroutine
 
 
 def get_team_info():

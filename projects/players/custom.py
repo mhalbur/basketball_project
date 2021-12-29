@@ -1,7 +1,7 @@
 from nba_api.stats.endpoints import commonteamroster
 from packages.connectors.sqlite import SQLite3
-from packages.common import get_nba_teams
-from packages.infrastructure import coroutine
+from generic.common import get_nba_teams
+from generic.infrastructure import coroutine
 
 
 def get_nba_players(data):

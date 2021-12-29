@@ -1,7 +1,7 @@
 from geopy.geocoders import Nominatim
 from nba_api.stats.static import teams
 from packages.connectors.sqlite import SQLite3
-from packages.infrastructure import coroutine
+from generic.infrastructure import coroutine
 
 
 def get_nba_teams():

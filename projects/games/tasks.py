@@ -1,6 +1,6 @@
 import projects.games.custom as games
 from packages.connectors.sqlite import SQLite3
-from packages.infrastructure import formatter
+from generic.infrastructure import formatter
 
 
 RESOURCES = 'projects/games/resources'

@@ -1,7 +1,7 @@
 import arrow
 from nba_api.stats.endpoints import leaguegamelog
 from packages.connectors.sqlite import SQLite3
-from packages.infrastructure import coroutine
+from generic.infrastructure import coroutine
 
 
 def get_max_game_date():
