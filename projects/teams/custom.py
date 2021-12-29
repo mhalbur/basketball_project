@@ -1,6 +1,6 @@
 from geopy.geocoders import Nominatim
 from nba_api.stats.static import teams
-from packages.connectors.sqlite import execute_sql, read_sql_file
+from packages.connectors.sqlite import SQLite3
 from packages.infrastructure import coroutine
 
 
@@ -44,13 +44,13 @@ def format_nba_teams(data):
 def load_nba_team():
     while True:
         row = yield
-        load_sql = read_sql_file(file_path='projects/teams/resources/teams_stage.sql', 
-                                 team_id=row['team_id'],
-                                 team_name=row['team_name'],
-                                 abbr=row['abbr'],
-                                 city=row['city'],
-                                 state=row['state'],
-                                 latitude=row['latitude'],
-                                 longitude=row['longitude'])
-        execute_sql(database_file="nba_basketball.db", sql=load_sql)
-        
+        with SQLite3() as db:
+            db.execute_sql(sql_file_path='projects/teams/resources',
+                           sql_file_name='teams_stage.sql',
+                           team_id=row['team_id'],
+                           team_name=row['team_name'],
+                           abbr=row['abbr'],
+                           city=row['city'],
+                           state=row['state'],
+                           latitude=row['latitude'],
+                           longitude=row['longitude'])

@@ -2,7 +2,7 @@ Project: Teams
 
 Jobs:
 - Name: Teams_Install_Script
-  Description: Retrieves NBA Teams
+  Description: Script to set up tables needed for this process
   Function: install_script
 
 - Name: Teams_API_Extract

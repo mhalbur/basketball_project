@@ -40,13 +40,12 @@ class SQLite3():
             print(f"{cnt} row(s) deleted...")
 
     def select_sql(self, sql_file_path=None, sql_file_name=None, sql=None, **args):
-        if sql_file_path:
-            file_path = f"{sql_file_path}/{sql_file_name}"
-            sql = self.read_sql_file(file_path=file_path)
+        if not sql:
+            self.sql_file = f'{sql_file_path}/{sql_file_name}'
+            sql = self.read_sql_file(**args)
 
         cur = self.connector.cursor()
         cur.execute(sql)
-
         rows = cur.fetchall()
 
         print(f"{len(rows)} rows selected...")

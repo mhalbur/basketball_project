@@ -10,18 +10,17 @@ def coroutine(func):
     return primer
 
 
-def list_to_dict(fields:list, default="NULL"):
+def list_to_dict(fields: list, default="NULL"):
     fields_dict = {fields[count].lower(): default for count, i in enumerate(fields)}
-    print(fields_dict)
     return fields_dict
 
 
-def lower_dict_keys(input_dict:dict):
-    output_dict = dict((k.lower(), v) for k, v in input_dict.items()) 
+def lower_dict_keys(input_dict: dict):
+    output_dict = dict((k.lower(), v) for k, v in input_dict.items())
     return output_dict
 
 
-def formatter(data, fields:list):
+def formatter(data, fields: list):
     fields_dict = list_to_dict(fields=fields)
     for row in data:
         lower_row = lower_dict_keys(input_dict=row)
@@ -32,7 +31,3 @@ def formatter(data, fields:list):
             except KeyError:
                 continue
         yield fields
-        
-
-
-# lower_dict_keys(input_dict={"A":"baaah", "b": "cooo", "c": "ddaaaah"})

@@ -1,17 +1,19 @@
 import projects.teams_distance.custom as teams
-from packages.connectors.sqlite import clean_table, execute_sql
+from packages.connectors.sqlite import SQLite3
 
 
 RESOURCES = 'projects/teams_distance/resources'
 
 
 def install_script():
-    execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams_distance_st.sql')
-    execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams_distance.sql')
+    with SQLite3() as db:
+        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams_distance_st.sql')
+        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams_distance.sql')
 
 
 def stage_nba_teams_distance():
-    clean_table(table="working_teams_distance_st")
+    with SQLite3() as db:
+        db.clean_table(table="working_teams_distance_st")
     team_info = teams.get_team_info()
     loader = teams.load_nba_team_distances()
 
@@ -20,4 +22,5 @@ def stage_nba_teams_distance():
 
 
 def apply_nba_teams_distance():
-    execute_sql(sql_file_path=RESOURCES, sql_file_name='teams_distance_apply.sql')
+    with SQLite3() as db:
+        db.execute_sql(sql_file_path=RESOURCES, sql_file_name='teams_distance_apply.sql')

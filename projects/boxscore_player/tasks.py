@@ -1,50 +1,33 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import projects.boxscore_player.custom as bsp
-from packages.connectors.sqlite import clean_table, execute_sql
-from packages.infrastructure import formatter
-
-#HATE THIS... NEED TO SET UP A CONFIG
-boxscore_players_fields = ["game_id",
-                           "team_id",
-                           "player_id",
-                           "start_position",
-                           "min",
-                           "fgm",
-                           "fga",
-                           "fg_pct",
-                           "fg3m",
-                           "fg3a",
-                           "fg3_pct",
-                           "ftm",
-                           "fta",
-                           "ft_pct",
-                           "oreb",
-                           "dreb",
-                           "reb",
-                           "ast",
-                           "stl",
-                           "blk",
-                           "to",
-                           "pf",
-                           "pts",
-                           "plus_minus"]
-
+from packages.connectors.sqlite import SQLite3
 
 RESOURCES = 'projects/boxscore_player/resources'
 
 def install_script():
-    execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='boxscore_player_st.sql')
-    execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='boxscore_player.sql')
+    with SQLite3() as db:
+        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='boxscore_player_st.sql')
+        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='boxscore_player.sql')
 
 
-def stage_boxscore_player():
-    clean_table(table="working_boxscore_player_st")
-    data = bsp.get_boxscore(game_id = 22100047, type="PlayerStats")
-    format = formatter(data=data, fields=boxscore_players_fields)
-    loader = bsp.load_boxscore_players()
+def boxscore_api_extract():
+    # with SQLite3() as db:
+    #     db.clean_table(table="working_boxscore_player_st")
+    with SQLite3() as db:
+        games = db.select_sql(sql_file_path="projects/boxscore_player/resources", sql_file_name="game_select.sql")
 
-    for row in format:
-        loader.send(row)
+    futures = []
+    with ThreadPoolExecutor(max_workers=5) as ex:
+        for game in games:
+            game_id = f"00{game[0]}"
+            print(game_id)
+            futures.append(ex.submit(bsp.stage_boxscore_player, game_id))
+
+        for future in as_completed(futures):
+            result = future.result()
+            print(f"completed {game_id}")
 
 
-def apply_nba_boxscore_player():
-    execute_sql(sql_file_path=RESOURCES, sql_file_name='boxscore_player_apply.sql')
+def apply_boxscore_player():
+    with SQLite3() as db:
+        db.execute_sql(sql_file_path=RESOURCES, sql_file_name='boxscore_player_apply.sql')

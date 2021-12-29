@@ -7,8 +7,8 @@ Jobs:
 
 - Name: Boxscore_Player_API_Extract
   Description: Retrieves NBA Boxscore_Player
-  Function: stage_nba_boxscore_player
+  Function: boxscore_api_extract
 
 - Name: Boxscore_Player_Apply
   Description: Merges NBA Boxscore_Player into boxscore_player table
-  Function: apply_nba_boxscore_player
+  Function: apply_boxscore_player
