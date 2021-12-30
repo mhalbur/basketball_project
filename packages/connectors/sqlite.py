@@ -30,6 +30,8 @@ class SQLite3():
         if not sql:
             self.sql_file = f'{sql_file_path}/{sql_file_name}'
             sql = self.read_sql_file(**args)
+            
+        print(sql)
 
         with self.connector as db:
             cnt = db.execute(sql).rowcount

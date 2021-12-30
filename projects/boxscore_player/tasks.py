@@ -1,5 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import projects.boxscore_player.custom as bsp
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from packages.connectors.sqlite import SQLite3
 
 RESOURCES = 'projects/boxscore_player/resources'
@@ -11,8 +11,9 @@ def install_script():
 
 
 def boxscore_api_extract():
-    # with SQLite3() as db:
-    #     db.clean_table(table="working_boxscore_player_st")
+    with SQLite3() as db:
+        db.clean_table(table="working_boxscore_player_st")
+
     with SQLite3() as db:
         games = db.select_sql(sql_file_path="projects/boxscore_player/resources", sql_file_name="game_select.sql")
 

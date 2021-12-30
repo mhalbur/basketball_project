@@ -24,7 +24,15 @@ select
     pf,
     pts,
     plus_minus
-from working_boxscore_player_st
+from working_boxscore_player_st a
+where
+    not exists(
+        select 1
+        from boxscore_player b
+        where 
+            a.game_id = b.game_id
+            and a.player_id = b.player_id
+    )
 group by 
     game_id,
     team_id,
@@ -49,4 +57,5 @@ group by
     "to",
     pf,
     pts,
-    plus_minus;
+    plus_minus
+;

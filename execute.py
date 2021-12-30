@@ -29,7 +29,7 @@ class Executor():
             return function
         except TypeError:
             raise Exception(f'{self.job} not found in {self.project}')
-     
+
     def run_job(self):
         function = self.extract_job_details()
         module =  __import__(self.package_path, fromlist=[function])
