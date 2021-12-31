@@ -2,7 +2,9 @@ import projects.boxscore_player.custom as bsp
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from packages.connectors.sqlite import SQLite3
 
+
 RESOURCES = 'projects/boxscore_player/resources'
+
 
 def install_script():
     with SQLite3() as db:

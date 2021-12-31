@@ -31,7 +31,8 @@ def load_boxscore_players():
                 row[key] = 0
             elif row[key] == '':
                 row[key] = "NULL"
+        row_dict = list(row.values())
         with SQLite3() as db:
-            db.execute_sql(sql_file_path='projects/boxscore_player/resources',
-                           sql_file_name='boxscore_player_stage.sql',
-                           *boxscore_players_fields)
+            db.sql_file = 'projects/boxscore_player/resources/boxscore_player_stage.sql'
+            sql = db.read_sql_file(list=row_dict)
+            db.execute_sql(sql=sql)

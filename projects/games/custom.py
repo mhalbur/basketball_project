@@ -8,6 +8,7 @@ def get_max_game_date():
     try: 
         with SQLite3() as db:
             database_obj = db.execute_sql(sql="select max(game_date) from games")
+            print(database_obj)
         for date in database_obj:
             dt = arrow.get(date[0]) 
             update_dt = dt.shift(days=-2)

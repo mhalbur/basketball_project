@@ -23,23 +23,25 @@ class SQLite3():
         print(f'clean up the table: {table}')
         self.execute_sql(sql=sql)
 
-    def read_sql_file(self, **args):
-        return open(self.sql_file).read().format(**args)
+    def read_sql_file(self, list: list = None, **args):
+        if list:
+            return open(self.sql_file).read().format(*list)
+        else:
+            return open(self.sql_file).read().format(**args)
 
     def execute_sql(self, sql=None, sql_file_path=None, sql_file_name=None, **args):
+        print(sql)
         if not sql:
             self.sql_file = f'{sql_file_path}/{sql_file_name}'
             sql = self.read_sql_file(**args)
-            
-        print(sql)
 
         with self.connector as db:
             cnt = db.execute(sql).rowcount
 
-        if "insert" in sql.lower():
-            print(f"{cnt} row(s) inserted...")
-        elif "delete" in sql.lower():
-            print(f"{cnt} row(s) deleted...")
+        # if "insert" in sql.lower():
+        #     print(f"{cnt} row(s) inserted...")
+        # elif "delete" in sql.lower():
+        #     print(f"{cnt} row(s) deleted...")
 
     def select_sql(self, sql_file_path=None, sql_file_name=None, sql=None, **args):
         if not sql:
