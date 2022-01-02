@@ -6,17 +6,17 @@ from projects.boxscore.config import players_fields, team_fields, resources
 def stage_boxscore_player(game_id):
     data = get_boxscore(game_id=game_id)
 
-    # player_data = extract_boxscore_data(data=data, type='PlayerStats')
+    player_data = extract_boxscore_data(data=data, type='PlayerStats')
     team_data = extract_boxscore_data(data=data, type='TeamStats')
 
-    # player_format = formatter(data=player_data, fields=players_fields, none_val=0)
+    player_format = formatter(data=player_data, fields=players_fields, none_val=0)
     team_format = formatter(data=team_data, fields=team_fields, none_val=0)
 
-    # player_loader = loader(sql_file=f'{resources}/player_stage.sql')
+    player_loader = loader(sql_file=f'{resources}/player_stage.sql')
     team_loader = loader(sql_file=f'{resources}/team_stage.sql')
 
-    # for row in player_format:
-        # player_loader.send(row)
+    for row in player_format:
+        player_loader.send(row)
 
     for row in team_format:
         team_loader.send(row)
