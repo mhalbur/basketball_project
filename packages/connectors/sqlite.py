@@ -1,3 +1,4 @@
+import rich
 import sqlite3
 
 class SQLite3():
@@ -6,11 +7,26 @@ class SQLite3():
         self.database_file = database_file
         self.sql_file = None
         self.connector = sqlite3.connect(self.database_file)
+        self.insert_cnt = 0
+        self.delete_cnt = 0
+        self.select_cnt = 0
+        self.table_cnt = 0
+        self.sql_type = None
 
     def __enter__(self):
         return self
 
     def __exit__(self, ext_type, exc_value, traceback):
+
+        if self.sql_type == 'insert':
+            rich.print(f"Number of rows inserted: {self.insert_cnt}")
+        elif self.sql_type == 'delete':
+            rich.print(f"Number of rows deleted: {self.delete_cnt}")
+        elif self.sql_type == 'select':
+            rich.print(f"Number of rows selected: {self.select_cnt}")
+        elif self.sql_type == 'create':
+            rich.print(f"Tables created: {self.table_cnt}")
+
         if isinstance(exc_value, Exception):
             self.connector.rollback()
         else:
@@ -20,7 +36,6 @@ class SQLite3():
     def clean_table(self, table):
         self.sql_file = "generic/resources/delete_all.sql"
         sql = self.read_sql_file(table=table)
-        print(f'clean up the table: {table}')
         self.execute_sql(sql=sql)
 
     def read_sql_file(self, list: list = None, **args):
@@ -30,7 +45,6 @@ class SQLite3():
             return open(self.sql_file).read().format(**args)
 
     def execute_sql(self, sql=None, sql_file_path=None, sql_file_name=None, **args):
-        print(sql)
         if not sql:
             self.sql_file = f'{sql_file_path}/{sql_file_name}'
             sql = self.read_sql_file(**args)
@@ -38,10 +52,15 @@ class SQLite3():
         with self.connector as db:
             cnt = db.execute(sql).rowcount
 
-        # if "insert" in sql.lower():
-        #     print(f"{cnt} row(s) inserted...")
-        # elif "delete" in sql.lower():
-        #     print(f"{cnt} row(s) deleted...")
+        if "insert" in sql.lower():
+            self.insert_cnt += cnt
+            self.sql_type = 'insert'
+        elif "delete" in sql.lower():
+            self.delete_cnt += cnt
+            self.sql_type = 'delete'
+        elif "create or replace" in sql.lower():
+            self.table_cnt += cnt
+            self.sql_type = 'create'
 
     def select_sql(self, sql_file_path=None, sql_file_name=None, sql=None, **args):
         if not sql:
@@ -52,5 +71,7 @@ class SQLite3():
         cur.execute(sql)
         rows = cur.fetchall()
 
-        print(f"{len(rows)} rows selected...")
+        self.select_cnt = len(rows)
+        self.sql_type = 'select'
+
         return rows

@@ -1,4 +1,3 @@
-"""(python -m execute project job args1...)"""
 import sys
 import yaml
 
@@ -32,7 +31,7 @@ class Executor():
 
     def run_job(self):
         function = self.extract_job_details()
-        module =  __import__(self.package_path, fromlist=[function])
+        module = __import__(self.package_path, fromlist=[function])
         return getattr(module, function)
 
 

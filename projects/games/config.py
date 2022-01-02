@@ -1,0 +1,1 @@
+game_fields = ["season_id", "game_id", "game_date", "matchup"]

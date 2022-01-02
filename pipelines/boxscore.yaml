@@ -1,0 +1,14 @@
+Project: Boxscore
+
+Jobs:
+- Name: Boxscore_Install_Script
+  Description: Retrieves NBA Boxscore_Player
+  Function: install_script
+
+- Name: Boxscore_API_Extract
+  Description: Retrieves NBA Boxscore(s)
+  Function: boxscore_api_extract
+
+- Name: Boxscore_Apply
+  Description: Merges NBA Boxscore into boxscore(s) table
+  Function: apply_boxscore
