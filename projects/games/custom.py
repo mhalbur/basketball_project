@@ -1,7 +1,6 @@
 import arrow
 from nba_api.stats.endpoints import leaguegamelog
-from packages.connectors.sqlite import SQLite3
-from generic.infrastructure import coroutine
+from etl.connectors.sqlite import SQLite3
 
 
 def get_max_game_date():
@@ -20,15 +19,3 @@ def get_nba_games():
     logs = game_logs.get_normalized_dict()
     for game in logs['LeagueGameLog']:
         yield game
-
-
-@coroutine
-def load_nba_games():
-    with SQLite3() as db:
-        while True:
-            row = yield
-            print(row)
-            row_dict = list(row.values())
-            db.sql_file = 'projects/games/resources/games_stage.sql'
-            sql = db.read_sql_file(list=row_dict)
-            db.execute_sql(sql=sql)

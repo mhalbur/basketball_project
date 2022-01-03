@@ -1,5 +1,6 @@
 import projects.players.custom as players
-from packages.connectors.sqlite import SQLite3
+from etl.connectors.sqlite import SQLite3
+from etl.common 
 
 RESOURCES = 'projects/players/resources'
 

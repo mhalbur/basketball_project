@@ -1,5 +1,8 @@
 from functools import wraps
-from packages.connectors.sqlite import SQLite3
+from typing import Generator
+from etl.connectors.sqlite import SQLite3
+from nba_api.stats.static import teams
+
 
 def coroutine(func):
     @wraps(func)
@@ -20,7 +23,7 @@ def lower_dict_keys(input_dict: dict):
     return output_dict
 
 
-def formatter(data, fields: list, none_val="NULL", empty_string_val="NULL"):
+def formatter(data: Generator, fields: list, none_val="NULL", empty_string_val="NULL"):
     fields_dict = list_to_dict(fields=fields)
     for row in data:
         lower_row = lower_dict_keys(input_dict=row)
@@ -39,7 +42,7 @@ def formatter(data, fields: list, none_val="NULL", empty_string_val="NULL"):
 
 
 @coroutine
-def loader(sql_file):
+def loader(sql_file: str):
     with SQLite3() as db:
         while True:
             row = yield
@@ -47,3 +50,16 @@ def loader(sql_file):
             db.sql_file = sql_file
             sql = db.read_sql_file(list=row_dict)
             db.execute_sql(sql=sql)
+
+
+def cleaner(tables: list):
+    print(tables)
+    with SQLite3 as db:
+        for table in tables:
+            db.clean_table(table=table)
+            
+
+def get_nba_teams():
+    nba_teams = teams.get_teams()
+    for team in nba_teams:
+        yield team

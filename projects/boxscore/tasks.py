@@ -1,7 +1,9 @@
-import projects.boxscore.custom as bsp
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from packages.connectors.sqlite import SQLite3
-from projects.boxscore.config import resources, ddl
+
+import projects.boxscore.custom as bsp
+from etl.common import cleaner
+from etl.connectors.sqlite import SQLite3
+from projects.boxscore.config import ddl, resources
 
 
 def install_script():
@@ -13,19 +15,28 @@ def install_script():
 
 
 def boxscore_api_extract():
+    cleaner(tables=['working_boxscore_player_st', 'working_boxscore_team_st'])
+
     with SQLite3() as db:
-        db.clean_table(table="working_boxscore_player_st")
-        db.clean_table(table="working_boxscore_team_st")
         games = db.select_sql(sql_file_path=resources, sql_file_name="game_select.sql")
 
-    futures = []
-    with ThreadPoolExecutor(max_workers=5) as ex:
-        for game in games:
-            game_id = f"00{game[0]}"
-            futures.append(ex.submit(bsp.stage_boxscore_player, game_id))
+    player_futures = []
+    boxscore_data = []
 
-        for future in as_completed(futures):
-            result = future.result()
+    for game in games:
+        game_id = f"00{game[0]}"
+        data = bsp.get_boxscore(game_id=game_id)
+        boxscore_data.append(data)
+
+    for boxscore in boxscore_data:
+        bsp.stage_boxscore_team(data=boxscore)
+
+    with ThreadPoolExecutor(max_workers=5) as ex:
+        for boxscore in boxscore_data:
+            player_futures.append(ex.submit(bsp.stage_boxscore_player, boxscore))
+
+    for future in as_completed(player_futures):
+        result = future.result()
 
 
 def apply_boxscore():

@@ -1,7 +1,6 @@
+from etl.common import coroutine, get_nba_teams
+from etl.connectors.sqlite import SQLite3
 from nba_api.stats.endpoints import commonteamroster
-from packages.connectors.sqlite import SQLite3
-from generic.common import get_nba_teams
-from generic.infrastructure import coroutine
 
 
 def get_nba_players(data):
@@ -31,17 +30,17 @@ def format_nba_players(data):
 
 @coroutine
 def load_nba_players():
-    while True:
-        row = yield
-        with SQLite3() as db:
-            db.execute_sql(sql_file_path='projects/players/resources',
-                           sql_file_name='players_stage.sql',
-                           player_id=row['player_id'],
-                           team_id=row['team_id'],
-                           first_name=row['first_name'],
-                           last_name=row['last_name'],
-                           jersey_number=row['jersey_number'],
-                           position=row['position'],
-                           age=row['age'],
-                           height=row['height'],
-                           experience=row['experience'])
+    with SQLite3() as db:
+        while True:
+            row = yield
+                db.execute_sql(sql_file_path='projects/players/resources',
+                            sql_file_name='players_stage.sql',
+                            player_id=row['player_id'],
+                            team_id=row['team_id'],
+                            first_name=row['first_name'],
+                            last_name=row['last_name'],
+                            jersey_number=row['jersey_number'],
+                            position=row['position'],
+                            age=row['age'],
+                            height=row['height'],
+                            experience=row['experience'])

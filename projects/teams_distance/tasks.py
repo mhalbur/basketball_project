@@ -1,5 +1,5 @@
 import projects.teams_distance.custom as teams
-from packages.connectors.sqlite import SQLite3
+from etl.connectors.sqlite import SQLite3
 
 
 RESOURCES = 'projects/teams_distance/resources'
