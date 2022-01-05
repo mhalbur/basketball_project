@@ -10,12 +10,12 @@ insert into working_teams_st
     )
 values
     (
-        "{team_id}",
-        "{team_name}",
-        "{abbr}",
-        "{city}",
-        "{state}",
-        "{latitude}",
-        "{longitude}"
+        "{0}",
+        "{1}",
+        "{2}",
+        "{3}",
+        "{4}",
+        "{5}",
+        "{6}"
     )
 ;

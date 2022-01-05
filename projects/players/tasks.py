@@ -1,19 +1,18 @@
 import projects.players.custom as players
-from etl.connectors.sqlite import SQLite3
-from etl.common 
+from etl.common.database import clean_table, execute_sql
+from etl.common.transform import loader
+from etl.common.nba_common import get_nba_teams
+from projects.players.config import ddls, resources
 
-RESOURCES = 'projects/players/resources'
 
 def install_script():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='players_st.sql')
-        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='players.sql')
+    file_path_list = [f'{ddls}/players_st.sql', f'{ddls}/players.sql']
+    execute_sql(file_paths=file_path_list)
 
 
 def stage_nba_players():
-    with SQLite3() as db:
-        db.clean_table(table='working_players_st')
-    team_data = players.get_nba_teams()
+    clean_table(tables=['working_players_st'])
+    team_data = get_nba_teams()
     player_data = players.get_nba_players(data=team_data)
     format_player_data = players.format_nba_players(data=player_data)
     loader = players.load_nba_players()
@@ -23,6 +22,5 @@ def stage_nba_players():
 
 
 def apply_nba_players():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=RESOURCES, sql_file_name='players_delete.sql')
-        db.execute_sql(sql_file_path=RESOURCES, sql_file_name='players_apply.sql')
+    file_path_list = [f'{resources}/players_apply.sql']
+    execute_sql(file_paths=file_path_list)

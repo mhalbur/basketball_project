@@ -1,26 +1,23 @@
 import projects.teams_distance.custom as teams
-from etl.connectors.sqlite import SQLite3
-
-
-RESOURCES = 'projects/teams_distance/resources'
+from etl.common.database import clean_table, execute_sql
+from etl.common.transform import loader
+from projects.teams_distance.config import ddl, resources
 
 
 def install_script():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams_distance_st.sql')
-        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams_distance.sql')
+    file_path_list = [f'{ddl}/teams_distance_st.sql', f'{ddl}/teams_distance.sql']
+    execute_sql(file_paths=file_path_list)
 
 
 def stage_nba_teams_distance():
-    with SQLite3() as db:
-        db.clean_table(table="working_teams_distance_st")
+    clean_table(tables=["working_teams_distance_st"])
     team_info = teams.get_team_info()
-    loader = teams.load_nba_team_distances()
+    load = loader(sql_file=f'{resources}/teams_distance_st.sql')
 
     for row in team_info:
-        loader.send(row)
+        load.send(row)
 
 
 def apply_nba_teams_distance():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=RESOURCES, sql_file_name='teams_distance_apply.sql')
+    file_path_list = [f'{resources}/teams_distance_apply.sql']
+    execute_sql(file_paths=file_path_list)

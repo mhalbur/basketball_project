@@ -1,5 +1,11 @@
+import logging
+import os
 import sys
+
+import arrow
 import yaml
+from rich.logging import RichHandler
+
 
 class Executor():
     def __init__(self):
@@ -24,17 +30,33 @@ class Executor():
         job = self.find_yaml_job()
         try:
             function = job['Function']
-            print(f'Running {function} from {self.package_path}...')
+            log.info(f'Running {function} from {self.package_path}...')
             return function
         except TypeError:
-            raise Exception(f'{self.job} not found in {self.project}')
+            log.exception(f'{self.job} not found in {self.project}')
 
     def run_job(self):
-        function = self.extract_job_details()
-        module = __import__(self.package_path, fromlist=[function])
-        return getattr(module, function)
+        try:
+            function = self.extract_job_details()
+            module = __import__(self.package_path, fromlist=[function])
+            return getattr(module, function)
+        except Exception:
+            log.exception(Exception)
 
 
 if __name__ == "__main__":
+    log_path = f'/tmp/logs/{sys.argv[1].lower()}'
+    log_directory = os.path.isdir(log_path)
+
+    if not log_directory:
+        os.mkdir(path=log_path, mode=0o775)
+
+    logging.basicConfig(level="NOTSET",
+                        format='%(asctime)s %(levelname)s:%(threadName)s %(name)s \n%(message)s',
+                        datefmt="[%X]",
+                        handlers=[logging.FileHandler(f'{log_path}/{arrow.utcnow().format("YYYY_MM_DD_HH_mm_ss")}.txt'),
+                                  RichHandler(rich_tracebacks=True)])
+    log = logging.getLogger("executor")
+
     method = Executor().run_job()
     method()

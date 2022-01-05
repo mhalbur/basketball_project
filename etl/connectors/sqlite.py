@@ -1,5 +1,8 @@
-import rich
+import logging
 import sqlite3
+
+
+log = logging.getLogger(__name__)
 
 
 class SQLite3():
@@ -18,16 +21,15 @@ class SQLite3():
         return self
 
     def __exit__(self, ext_type, exc_value, traceback):
-
         if self.sql_type == 'insert':
-            rich.print(f"Number of rows inserted: {self.insert_cnt}")
+            log.info(f"Number of rows inserted: {self.insert_cnt}")
         elif self.sql_type == 'delete':
-            rich.print(f"Number of rows deleted: {self.delete_cnt}")
+            log.info(f"Number of rows deleted: {self.delete_cnt}")
         elif self.sql_type == 'select':
-            rich.print(f"Number of rows selected: {self.select_cnt}")
+            log.info(f"Number of rows selected: {self.select_cnt}")
         elif self.sql_type == 'create':
-            rich.print(f"Tables created: {self.table_cnt}")
-
+            log.info(f"Tables created: {self.table_cnt}")
+        
         if isinstance(exc_value, Exception):
             self.connector.rollback()
         else:
@@ -35,7 +37,7 @@ class SQLite3():
         self.connector.close()
 
     def clean_table(self, table):
-        self.sql_file = "generic/resources/delete_all.sql"
+        self.sql_file = "etl/resources/delete_all.sql"
         sql = self.read_sql_file(table=table)
         self.execute_sql(sql=sql)
 
@@ -45,11 +47,14 @@ class SQLite3():
         else:
             return open(self.sql_file).read().format(**args)
 
-    def execute_sql(self, sql=None, sql_file_path=None, sql_file_name=None, **args):
-        if not sql:
+    def execute_sql(self, sql=None, sql_full_file_path=None, sql_file_path=None, sql_file_name=None, **args):
+        if not sql and not sql_full_file_path:
             self.sql_file = f'{sql_file_path}/{sql_file_name}'
             sql = self.read_sql_file(**args)
-        print(sql)
+        elif not sql:
+            self.sql_file = sql_full_file_path
+            sql = self.read_sql_file(**args)
+
         with self.connector as db:
             cnt = db.execute(sql).rowcount
 

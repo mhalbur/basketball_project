@@ -1,56 +1,48 @@
-from etl.common import formatter, loader
+import logging
+import rich
+from etl.common.generic import formatter, loader
 from etl.connectors.sqlite import SQLite3
 from nba_api.stats.endpoints import boxscoretraditionalv2
 from projects.boxscore.config import players_fields, resources, team_fields
 
+class Boxscore_Traditional():
+    def __init__(self, game_id):
+        self.boxscore_data = None
+        self.game_id = game_id
+        self.log = None
 
-class Boxscore():
-    def __init__(self):
-        self.boxscore = None
-        self.game_ids = []
+    def __enter__(self):
+        self.log = logging.getLogger('projects.boxscore.custom')
+        boxscore_dataset = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=self.game_id, timeout=120)
+        self.boxscore_data = boxscore_dataset.get_normalized_dict()
+        return self
 
-    def clean_staging_tables(self):
-        with SQLite3 as db:
-            db.clean_table(table="working_boxscore_player_st")
-            db.clean_table(table="working_boxscore_team_st")
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.log.info("Execution type:", exc_type)
+        self.log.info("Execution value:", exc_value)
+        self.log.info("Traceback:", traceback)
 
-    def get_game_ids():
-        with SQLite3 as db:
-            games = db.select_sql(sql_file_path=resources, sql_file_name="game_select.sql")
+    def get_boxscore(self):
+        boxscore_dataset = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=self.game_id, timeout=120)
+        return boxscore_dataset.get_normalized_dict()
 
-        game_ids = []
-        for game in games:
-            game_ids.append(f"00{game[0]}")
+    def extract_boxscore_data(self, data, boxscore_field):
+        for row in data[boxscore_field]:
+            yield row
 
-        self.game_ids = game_ids
-            
-        
-            
-def stage_boxscore_player(data):
-    player_data = extract_boxscore_data(data=data, type='PlayerStats')
-    player_format = formatter(data=player_data, fields=players_fields, none_val=0)
-    player_loader = loader(sql_file=f'{resources}/player_stage.sql')
+    def stage_boxscore_player(self):
+        player_data = self.extract_boxscore_data(data=self.boxscore_data, boxscore_field='PlayerStats')
+        player_format = formatter(data=player_data, fields=players_fields, none_val=0)
+        player_loader = loader(sql_file=f'{resources}/player_stage.sql')
 
-    for row in player_format:
-        player_loader.send(row)
-
-
-def stage_boxscore_team(data):
-    team_data = extract_boxscore_data(data=data, type='TeamStats')
-    team_format = formatter(data=team_data, fields=team_fields, none_val=0)
-    team_loader = loader(sql_file=f'{resources}/team_stage.sql')
-
-    for row in team_format:
-        team_loader.send(row)
+        for row in player_format:
+            player_loader.send(row)
 
 
-def get_boxscore(game_id):
-    boxscore_dataset = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id, timeout=120)
-    boxscore = boxscore_dataset.get_normalized_dict()
-    yield boxscore
+    def stage_boxscore_team(self):
+        team_data = self.extract_boxscore_data(data=self.boxscore_data, boxscore_field='TeamStats')
+        team_format = formatter(data=team_data, fields=team_fields, none_val=0)
+        team_loader = loader(sql_file=f'{resources}/team_stage.sql')
 
-
-def extract_boxscore_data(data, type):
-    for row in data:
-        for boxscore in row[type]:
-            yield boxscore
+        for row in team_format:
+            team_loader.send(row)

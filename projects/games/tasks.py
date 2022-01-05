@@ -1,27 +1,29 @@
+import logging 
 import projects.games.custom as games
-from etl.common import cleaner, formatter, loader
-from etl.connectors.sqlite import SQLite3
+from etl.common.database import clean_table, execute_sql
+from etl.common.generic import formatter, loader
 from projects.games.config import ddls, game_fields, resources
 
+log = logging.getLogger(__name__)
 
 def install_script():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=ddls, sql_file_name='games_st.sql')
-        db.execute_sql(sql_file_path=ddls, sql_file_name='games.sql')
+    file_path_list = [f'{ddls}/games_st.sql', f'{ddls}/games.sql',]
+    execute_sql(file_paths=file_path_list)
 
 
-def stage_nba_games():
-    cleaner(tables=["working_games_st"])
+def games_api_extract():
+    log.info(f"Beginning {__name__} api extract...")
+    clean_table(tables=["working_games_st"])
 
     game_data = games.get_nba_games()
     format = formatter(data=game_data, fields=game_fields)
     game_loader = loader(sql_file=f'{resources}/games_stage.sql')
-    
 
     for row in format:
         game_loader.send(row)
 
 
 def apply_nba_games():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=resources, sql_file_name='games_apply.sql')
+    log.info("Applying recent NBA games to table...")
+    file_path_list = [f'{resources}/games_apply.sql']
+    execute_sql(file_paths=file_path_list)

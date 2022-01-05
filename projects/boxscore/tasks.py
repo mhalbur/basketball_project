@@ -1,45 +1,33 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
 
-import projects.boxscore.custom as bsp
-from etl.common import cleaner
-from etl.connectors.sqlite import SQLite3
+from etl.common.database import clean_table, execute_sql
+from etl.common.nba_common import get_game_ids
 from projects.boxscore.config import ddl, resources
+from projects.boxscore.custom import Boxscore_Traditional
+
+log = logging.getLogger(__name__)
 
 
 def install_script():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=ddl, sql_file_name='player_st.sql')
-        db.execute_sql(sql_file_path=ddl, sql_file_name='player.sql')
-        db.execute_sql(sql_file_path=ddl, sql_file_name='team_st.sql')
-        db.execute_sql(sql_file_path=ddl, sql_file_name='team.sql')
+    file_path_list = [f'{ddl}/player_st.sql', 
+                      f'{ddl}/player.sql', 
+                      f'{ddl}/team_st.sql',
+                      f'{ddl}/team.sql']
+    execute_sql(file_path=file_path_list)
 
 
 def boxscore_api_extract():
-    cleaner(tables=['working_boxscore_player_st', 'working_boxscore_team_st'])
+    log.info("Starting boxscore api extract...")
+    clean_table(tables=['working_boxscore_player_st', 'working_boxscore_team_st'])
 
-    with SQLite3() as db:
-        games = db.select_sql(sql_file_path=resources, sql_file_name="game_select.sql")
+    game_ids = get_game_ids()
 
-    player_futures = []
-    boxscore_data = []
-
-    for game in games:
-        game_id = f"00{game[0]}"
-        data = bsp.get_boxscore(game_id=game_id)
-        boxscore_data.append(data)
-
-    for boxscore in boxscore_data:
-        bsp.stage_boxscore_team(data=boxscore)
-
-    with ThreadPoolExecutor(max_workers=5) as ex:
-        for boxscore in boxscore_data:
-            player_futures.append(ex.submit(bsp.stage_boxscore_player, boxscore))
-
-    for future in as_completed(player_futures):
-        result = future.result()
+    for game_id in game_ids:
+        with Boxscore_Traditional(game_id=game_id) as b:
+            b.stage_boxscore_player()
+            b.stage_boxscore_team()
 
 
 def apply_boxscore():
-    with SQLite3() as db:
-        # db.execute_sql(sql_file_path=resources, sql_file_name='player_apply.sql')
-        db.execute_sql(sql_file_path=resources, sql_file_name='team_apply.sql')
+    file_path_list = [f'{resources}/player_apply.sql', f'{resources}/team_apply.sql']
+    execute_sql(file_path=file_path_list)

@@ -1,28 +1,26 @@
 import projects.teams.custom as teams
-from etl.connectors.sqlite import SQLite3
-
-
-RESOURCES = 'projects/teams/resources'
+from etl.common.database import clean_table, execute_sql
+from etl.common.transform import loader
+from etl.common.nba_common import get_nba_teams
+from projects.teams.config import ddl, resources
 
 
 def install_script():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams_st.sql')
-        db.execute_sql(sql_file_path=f'{RESOURCES}/ddls', sql_file_name='teams.sql')
+    file_path_list = [f'{ddl}/teams_st.sql', f'{ddl}/teams.sql']
+    execute_sql(file_paths=file_path_list)
 
 
 def stage_nba_teams():
-    with SQLite3() as db:
-        db.clean_table(table="working_teams_st")
+    clean_table(tables=["working_teams_st"])
 
-    team_data = teams.get_nba_teams()
+    team_data = get_nba_teams()
     format_team_data = teams.format_nba_teams(data=team_data)
-    loader = teams.load_nba_team()
+    load = loader(sql_file=f'{resources}/teams_stage.sql')
 
     for row in format_team_data:
-        loader.send(row)
+        load.send(row)
 
 
 def apply_nba_teams():
-    with SQLite3() as db:
-        db.execute_sql(sql_file_path=RESOURCES, sql_file_name='teams_apply.sql')
+    file_path_list = [f'{resources}/teams_apply.sql']
+    execute_sql(file_paths=file_path_list)

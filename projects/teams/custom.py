@@ -1,13 +1,4 @@
 from geopy.geocoders import Nominatim
-from nba_api.stats.static import teams
-from etl.connectors.sqlite import SQLite3
-from etl.common import coroutine
-
-
-def get_nba_teams():
-    nba_teams = teams.get_teams()
-    for team in nba_teams:
-        yield team
 
 
 def get_long_lat(city, state):
@@ -38,19 +29,3 @@ def format_nba_teams(data):
         nba_team['longitude'] = long
 
         yield nba_team
-
-
-@coroutine
-def load_nba_team():
-    while True:
-        row = yield
-        with SQLite3() as db:
-            db.execute_sql(sql_file_path='projects/teams/resources',
-                           sql_file_name='teams_stage.sql',
-                           team_id=row['team_id'],
-                           team_name=row['team_name'],
-                           abbr=row['abbr'],
-                           city=row['city'],
-                           state=row['state'],
-                           latitude=row['latitude'],
-                           longitude=row['longitude'])
