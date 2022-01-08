@@ -1,4 +1,5 @@
-from logging import Logger
+import csv
+import gzip
 import logging
 from typing import Generator, List
 
@@ -35,3 +36,16 @@ def loader(sql_file: str):
             sql = db.read_sql_file(list=row_dict)
             log.info(sql)
             db.execute_sql(sql=sql)
+
+
+@coroutine
+def file_put_rows(file_path: str, file_name: str, encoding: str = 'utf-8'):
+    file_path = f'{file_path}/{file_name}'
+    file = open(file_path, 'w', encoding=encoding)
+    writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+    try:
+        while True:
+            row = yield
+            writer.writerow(row)
+    except GeneratorExit as ex:
+        raise ex

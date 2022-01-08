@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+from sqlite3 import Error
 
 
 log = logging.getLogger(__name__)
@@ -10,14 +11,15 @@ class SQLite3():
     def __init__(self, database_file="nba_basketball.db"):
         self.database_file = database_file
         self.sql_file = None
-        self.connector = sqlite3.connect(self.database_file)
+        self.connector = None
+        self.sql_type = None
         self.insert_cnt = 0
         self.delete_cnt = 0
         self.select_cnt = 0
         self.table_cnt = 0
-        self.sql_type = None
 
     def __enter__(self):
+        self.create_connection()
         return self
 
     def __exit__(self, ext_type, exc_value, traceback):
@@ -29,13 +31,20 @@ class SQLite3():
             log.info(f"Number of rows selected: {self.select_cnt}")
         elif self.sql_type == 'create':
             log.info(f"Tables created: {self.table_cnt}")
-        
+
         if isinstance(exc_value, Exception):
             self.connector.rollback()
         else:
             self.connector.commit()
         self.connector.close()
 
+    def create_connection(self):
+        try:
+            self.connector = sqlite3.connect(self.database_file)
+            log.info("Connection was successful")
+        except Error as e:
+            log.info(f"The error '{e}' occurred.")
+        
     def clean_table(self, table):
         self.sql_file = "etl/resources/delete_all.sql"
         sql = self.read_sql_file(table=table)
@@ -68,9 +77,12 @@ class SQLite3():
             self.table_cnt += cnt
             self.sql_type = 'create'
 
-    def select_sql(self, sql_file_path=None, sql_file_name=None, sql=None, **args):
-        if not sql:
+    def select_sql(self, sql_full_file_path=None, sql_file_path=None, sql_file_name=None, sql=None, **args):
+        if not sql and not sql_full_file_path:
             self.sql_file = f'{sql_file_path}/{sql_file_name}'
+            sql = self.read_sql_file(**args)
+        elif not sql:
+            self.sql_file = sql_full_file_path
             sql = self.read_sql_file(**args)
 
         cur = self.connector.cursor()
