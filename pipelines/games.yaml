@@ -9,6 +9,10 @@ Jobs:
   Description: Retrieves NBA Games
   Function: games_api_extract
 
+- Name: Games_Stage
+  Description: Retrieves NBA Games
+  Function: stage_games
+
 - Name: Games_Apply
   Description: Merges NBA Games into games table
   Function: apply_nba_games

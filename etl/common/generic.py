@@ -49,3 +49,15 @@ def file_put_rows(file_path: str, file_name: str, encoding: str = 'utf-8'):
             writer.writerow(row)
     except GeneratorExit as ex:
         raise ex
+    finally:
+        file.close()
+
+
+def file_get_rows(file_path: str, file_name: str, delimiter: str = ','):
+    file_path = f'{file_path}/{file_name}'
+
+    with open(file_path) as f:
+        csv_reader = csv.reader(f, delimiter=delimiter)
+        for row in csv_reader:
+            print(row)
+            yield row

@@ -28,3 +28,19 @@ def get_nba_games():
     logs = game_logs.get_normalized_dict()
     for game in logs['LeagueGameLog']:
         yield game
+        
+        
+# def get_nba_games():
+#     data = []
+#     max_date = get_max_game_date()
+#     game_logs = leaguegamelog.LeagueGameLog(date_from_nullable=max_date, timeout=120)
+#     logs = game_logs.get_normalized_dict()
+#     for game in logs['LeagueGameLog']:
+#         clean_game = {}
+#         clean_game['season_id'] = game['SEASON_ID']
+#         clean_game['game_id'] = game['GAME_ID']
+#         clean_game['game_date'] = game['GAME_DATE']
+#         clean_game['matchup'] = game['MATCHUP']
+#         data.append(clean_game)
+    
+#     return data
