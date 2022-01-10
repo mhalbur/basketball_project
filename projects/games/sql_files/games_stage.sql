@@ -7,9 +7,9 @@ insert into working_games_st
     )
 values
     (
-        "{1}",
-        "{0}",
-        "{2}",
-        "{3}"
+        ?,
+        ?,
+        ?,
+        ?
     )
 ;

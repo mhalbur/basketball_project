@@ -1,36 +1,45 @@
+import csv
+import gzip
 import logging
 import sqlite3
 from sqlite3 import Error
 
-
-log = logging.getLogger(__name__)
+from sql_metadata import Parser
 
 
 class SQLite3():
     # put databse location in encrypted config file
     def __init__(self, database_file="nba_basketball.db"):
+        self.log = logging.getLogger(__name__)
         self.database_file = database_file
-        self.sql_file = None
         self.connector = None
-        self.sql_type = None
+        self.cur = None
+
+        # logging
+        self.table = None
+        self.sql_types = []
         self.insert_cnt = 0
         self.delete_cnt = 0
         self.select_cnt = 0
         self.table_cnt = 0
 
     def __enter__(self):
+        self.log = logging.getLogger(__name__)
         self.create_connection()
         return self
 
     def __exit__(self, ext_type, exc_value, traceback):
-        if self.sql_type == 'insert':
-            log.info(f"Number of rows inserted: {self.insert_cnt}")
-        elif self.sql_type == 'delete':
-            log.info(f"Number of rows deleted: {self.delete_cnt}")
-        elif self.sql_type == 'select':
-            log.info(f"Number of rows selected: {self.select_cnt}")
-        elif self.sql_type == 'create':
-            log.info(f"Tables created: {self.table_cnt}")
+        if 'insert' in self.sql_types:
+            self.log.info(f"Number of rows inserted into {self.table}: {self.insert_cnt}")
+
+        if 'delete' in self.sql_types:
+            self.log.info(f"Number of rows deleted from {self.table}: {self.delete_cnt}")
+
+        if 'select' in self.sql_types:
+            self.log.info(f"Number of rows selected from {self.table}: {self.select_cnt}")
+
+        if 'create' in self.sql_types:
+            self.log.info(f"Tables created: {self.table_cnt}")
 
         if isinstance(exc_value, Exception):
             self.connector.rollback()
@@ -39,57 +48,128 @@ class SQLite3():
         self.connector.close()
 
     def create_connection(self):
+        """Establish connection for SQLite File Database
+        """
         try:
             self.connector = sqlite3.connect(self.database_file)
-            log.info("Connection was successful")
+            self.cur = self.connector.cursor()
+            self.log.info("Connection was successful")
         except Error as e:
-            log.info(f"The error '{e}' occurred.")
-        
-    def clean_table(self, table):
-        self.sql_file = "etl/resources/delete_all.sql"
-        sql = self.read_sql_file(table=table)
-        self.execute_sql(sql=sql)
+            self.log.info(f"The error '{e}' occurred.")
 
-    def read_sql_file(self, list: list = None, **args):
-        if list:
-            return open(self.sql_file).read().format(*list)
+    def clean_table(self, table: str):
+        """Empties table when called
+
+        Args:
+            table (str): table name to be emptied
+        """
+        file = "etl/sql_files/delete_all.sql"
+        self.execute_sql(file_path=file, table=table)
+
+    def read_sql_file(self, file_path: str, read_list: list = None, **args):
+        """Opens, reads, and formats arguments for a given SQL file
+
+        Args:
+            file_path (str): file path of sql file to be read
+            read_list (list, optional): List of arguments that would be passed into file to be formatted. Defaults to None.
+
+        Returns:
+            [str]: A string containing the formatted SQL query to be ran in a later step
+        """
+        if read_list:
+            return open(file_path).read().format(*read_list)
         else:
-            return open(self.sql_file).read().format(**args)
+            return open(file_path).read().format(**args)
 
-    def execute_sql(self, sql=None, sql_full_file_path=None, sql_file_path=None, sql_file_name=None, **args):
-        if not sql and not sql_full_file_path:
-            self.sql_file = f'{sql_file_path}/{sql_file_name}'
-            sql = self.read_sql_file(**args)
-        elif not sql:
-            self.sql_file = sql_full_file_path
-            sql = self.read_sql_file(**args)
+    def sql_logging(self, sql: str, cnt: int):
+        """Keeps track of counts and sql query types for logging when connection is closed
 
-        with self.connector as db:
-            cnt = db.execute(sql).rowcount
-
+        Args:
+            sql (str): SQL query that was ran before being passed to sql_logging()
+            cnt (int): Count of rows selected, inserted, deleted or tables created
+        """
         if "insert" in sql.lower():
             self.insert_cnt += cnt
-            self.sql_type = 'insert'
-        elif "delete" in sql.lower():
+            self.sql_types.append('insert')
+
+        if "delete" in sql.lower():
             self.delete_cnt += cnt
-            self.sql_type = 'delete'
-        elif "create or replace" in sql.lower():
+            self.sql_types.append('delete')
+
+        if "create or replace" in sql.lower():
             self.table_cnt += cnt
-            self.sql_type = 'create'
+            self.sql_types.append('create')
 
-    def select_sql(self, sql_full_file_path=None, sql_file_path=None, sql_file_name=None, sql=None, **args):
-        if not sql and not sql_full_file_path:
-            self.sql_file = f'{sql_file_path}/{sql_file_name}'
-            sql = self.read_sql_file(**args)
-        elif not sql:
-            self.sql_file = sql_full_file_path
-            sql = self.read_sql_file(**args)
+        if "select" in sql.lower() and "insert" not in sql.lower() and "delete" not in sql.lower():
+            self.select_cnt += cnt
+            self.sql_types.append('select')
 
-        cur = self.connector.cursor()
-        cur.execute(sql)
-        rows = cur.fetchall()
+    def execute_sql(self, sql: str = None, file_path: str = None, **args):
+        """Executes a SQL query from either SQL str or a file_path
 
-        self.select_cnt = len(rows)
-        self.sql_type = 'select'
+        Args:
+            sql (str, optional): SQL query to be ran. Defaults to None.
+            file_path (str, optional): File path to the location of the file containing the SQL to be ran. Defaults to None.
+        """
+        if file_path:
+            sql = self.read_sql_file(file_path=file_path, **args)
+
+        cnt = self.cur.execute(sql).rowcount
+
+        # ValueError: Not supported query type
+        if 'delete' not in sql:
+            self.table = Parser(sql).tables[0]
+
+        self.sql_logging(sql=sql, cnt=cnt)
+
+    def select_sql(self, sql: str = None, file_path: str = None, **args):
+        """Executes a select SQL query and returns its results
+
+        Args:
+            sql (str, optional): SQL query to be ran. Defaults to None.
+            file_path (str, optional): File path to the location of the file containing the SQL to be ran. Defaults to None.
+
+        Returns:
+            [List]: All rows of a query result that is retrieved from the ran query
+        """
+        if file_path:
+            sql = self.read_sql_file(file_path=file_path, **args)
+
+        self.cur.execute(sql)
+        rows = self.cur.fetchall()
+
+        self.sql_logging(sql=sql, cnt=len(rows))
+        self.table = Parser(sql).tables[0]
 
         return rows
+
+    def load_sql(self, load_file_path: str, clean_table: bool = True,  sql: str = None, file_path: str = None):
+        """Reads csv files and loads it into a database
+
+        Args:
+            load_file_path (str): location of the file to be loaded
+            clean_table (bool, optional): If True, the table will be emptied before loading, otherwise, if False, it will not. Defaults to True.
+            sql (str, optional): SQL query to be ran. Defaults to None.
+            file_path (str, optional): File path to the location of the file containing the SQL to be ran. Defaults to None.
+        """
+        if file_path:
+            sql = self.read_sql_file(file_path=file_path)
+
+        self.table = Parser(sql).tables[0]
+
+        if clean_table:
+            self.clean_table(table=self.table)
+
+        file_extension = load_file_path.split('.')[-1]
+
+        if file_extension == "gz":
+            file = gzip.open(load_file_path, 'rt')
+        else:
+            file = open(load_file_path, 'r')
+
+        rows = csv.reader(file)
+        cnt = self.cur.executemany(sql, rows).rowcount
+
+        file.close()
+
+        self.sql_logging(sql=sql, cnt=cnt)

@@ -1,7 +1,7 @@
 import projects.teams.custom as teams
-from etl.common.database import clean_table, execute_sql
+from etl.functions.database import clean_table, execute_sql
 from etl.common.transform import loader
-from etl.common.nba_common import get_nba_teams
+from etl.functions.nba import get_nba_teams
 from projects.teams.config import ddl, resources
 
 

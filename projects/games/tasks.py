@@ -1,51 +1,42 @@
-import logging 
-import projects.games.custom as games
-from etl.common.database import clean_table, execute_sql
-from etl.common.generic import formatter, loader, file_put_rows, file_get_rows
-from etl.common.transform import generator_dict_to_list
-from projects.games.config import ddls, game_fields, resources
+import glob
+import logging
 
-import pandas as pd
+from etl.functions.database import execute_sql, load_sql
+from etl.functions.file import clean_files, move_files
+from projects.games.config import (ARCHIVE_FILE_PATH, DDL_FILE_PATH,
+                                   SQL_FILE_PATH, WORKING_FILE_PATH)
+from projects.games.custom import games_api_extract, write_game_files
 
 log = logging.getLogger(__name__)
 
+
 def install_script():
-    file_path_list = [f'{ddls}/games_st.sql', f'{ddls}/games.sql',]
+    log.info("Beginning to build the tables for Games...")
+    file_path_list = [f'{DDL_FILE_PATH}/games_st.sql', f'{DDL_FILE_PATH}/games.sql',]
     execute_sql(file_paths=file_path_list)
 
 
-# def games_api_extract():
-#     game_data = games.get_nba_games()
-    
-#     df = pd.DataFrame(data=game_data, columns=game_fields)
-#     df.groupby('game_date')
-#     for row in df.itertuples:
-#         print(row)
-    
-
-def games_api_extract():
-    # log.info(f"Beginning {__name__} api extract...")
-
-    # clean_table(tables=["working_games_st"])
-
-    game_data = games.get_nba_games()
-    game_to_list = generator_dict_to_list(data=game_data)
-    writer = file_put_rows(file_path='/tmp', file_name='test.txt')
-    format = formatter(data=game_data, fields=game_fields)
-    game_loader = loader(sql_file=f'{resources}/games_stage.sql')
-
-    for row in game_to_list:
-        writer.send(row)
+def get_games():
+    log.info(f"Retrieving games from the API and writing them to {WORKING_FILE_PATH}...")
+    files = glob.glob(pathname=f'{WORKING_FILE_PATH}/*')
+    clean_files(files=files)
+    games = games_api_extract()
+    write_game_files(games=games)
 
 
-def stage_games():
+def load_games():
+    log.info("Loading games to SQLite...")
+    files = glob.glob(pathname=f'{WORKING_FILE_PATH}/*')
+    load_sql(file_paths=files, sql_file_path=f'{SQL_FILE_PATH}/games_stage.sql')
 
-    reader = file_get_rows(file_path='/tmp', file_name='test.txt')
-    # print(reader)
-    for row in reader:
-        print(row)
 
-def apply_nba_games():
-    log.info("Applying recent NBA games to table...")
-    file_path_list = [f'{resources}/games_apply.sql']
+def apply_games():
+    log.info("Applying recent games to final table...")
+    file_path_list = [f'{SQL_FILE_PATH}/games_apply.sql']
     execute_sql(file_paths=file_path_list)
+
+
+def archive_game_files():
+    log.info(f"Archiving files from {WORKING_FILE_PATH} to {ARCHIVE_FILE_PATH}...")
+    files = glob.glob(pathname=f'{WORKING_FILE_PATH}/*')
+    move_files(files=files, destination=ARCHIVE_FILE_PATH, overwrite=True)

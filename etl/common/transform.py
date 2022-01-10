@@ -25,6 +25,23 @@ def dict_to_list(dictionary: Dict):
     return list(dictionary.values())
 
 
+def row_formatter(row, fields: List, none_val="NULL", empty_string_val="NULL"):
+    fields_dict = list_to_dict(fields=fields)
+    lower_row = lower_dict_keys(input_dict=row)
+    fields = {}
+    for field in fields_dict:
+        try:
+            if fields_dict[field] is None:
+                fields[field] = none_val
+            elif fields_dict[field] == '':
+                fields[field] = empty_string_val
+            else:
+                fields[field] = lower_row[field]
+        except KeyError:
+            continue
+    return fields
+
+
 @coroutine
 def generator_dict_to_list(data: Generator):
     for row in data:

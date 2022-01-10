@@ -1,5 +1,5 @@
 import projects.teams_distance.custom as teams
-from etl.common.database import clean_table, execute_sql
+from etl.functions.database import clean_table, execute_sql
 from etl.common.transform import loader
 from projects.teams_distance.config import ddl, resources
 

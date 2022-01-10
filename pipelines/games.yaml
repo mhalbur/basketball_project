@@ -2,17 +2,21 @@ Project: Games
 
 Jobs:
 - Name: Games_Install_Script
-  Description: Retrieves NBA Games
+  Description: Installs necessary tables on set up
   Function: install_script
 
 - Name: Games_API_Extract
-  Description: Retrieves NBA Games
-  Function: games_api_extract
+  Description: Retrieves the games information from swar's nba api
+  Function: get_games
 
-- Name: Games_Stage
-  Description: Retrieves NBA Games
-  Function: stage_games
+- Name: Games_Load
+  Description: Loads the files from /mnt/data/working/games to working_games_st
+  Function: load_games
 
 - Name: Games_Apply
-  Description: Merges NBA Games into games table
-  Function: apply_nba_games
+  Description: Merges NBA Games into games
+  Function: apply_games
+
+- Name: Games_Archive
+  Description: Archives the files in /mnt/data/working/games -> /mnt/data/archive/games
+  Function: archive_game_files

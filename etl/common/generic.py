@@ -1,5 +1,4 @@
 import csv
-import gzip
 import logging
 from typing import Generator, List
 
@@ -33,14 +32,13 @@ def loader(sql_file: str):
             row = yield
             row_dict = list(row.values())
             db.sql_file = sql_file
-            sql = db.read_sql_file(list=row_dict)
+            sql = db.read_sql_file(read_list=row_dict)
             log.info(sql)
             db.execute_sql(sql=sql)
 
 
 @coroutine
-def file_put_rows(file_path: str, file_name: str, encoding: str = 'utf-8'):
-    file_path = f'{file_path}/{file_name}'
+def file_put_rows(file_path: str, encoding: str = 'utf-8'):
     file = open(file_path, 'w', encoding=encoding)
     writer = csv.writer(file, quoting=csv.QUOTE_ALL)
     try:
@@ -59,5 +57,4 @@ def file_get_rows(file_path: str, file_name: str, delimiter: str = ','):
     with open(file_path) as f:
         csv_reader = csv.reader(f, delimiter=delimiter)
         for row in csv_reader:
-            print(row)
             yield row

@@ -1,7 +1,7 @@
 import logging
 
-from etl.common.database import clean_table, execute_sql
-from etl.common.nba_common import get_game_ids
+from etl.functions.database import clean_table, execute_sql
+from etl.functions.nba import get_game_ids
 from projects.boxscore.config import ddl, resources
 from projects.boxscore.custom import Boxscore_Traditional
 
