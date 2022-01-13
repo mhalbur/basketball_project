@@ -4,7 +4,7 @@ import shutil
 from typing import List, Dict
 import gzip
 import csv
-from etl.common.transform import format_dict
+from etl.functions.transform import format_dict
 
 log = logging.getLogger(__name__)
 

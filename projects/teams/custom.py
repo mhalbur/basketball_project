@@ -3,7 +3,7 @@ import csv
 import gzip
 from geopy.geocoders import Nominatim
 
-from etl.common.transform import format_dict
+from etl.functions.transform import format_dict
 from etl.functions.nba import get_nba_teams
 from projects.teams.config import FIELDS, WORKING_FILE_PATH
 

@@ -3,7 +3,7 @@ from typing import Dict
 import arrow
 import pandas as pd
 from etl.functions.nba import get_max_game_date
-from etl.common.transform import format_dict
+from etl.functions.transform import format_dict
 from nba_api.stats.endpoints import leaguegamelog
 from projects.games.config import GAME_FIELDS, WORKING_FILE_PATH
 
