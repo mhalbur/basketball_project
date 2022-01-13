@@ -1,9 +1,10 @@
+import csv
+import gzip
 import logging
 import os
 import shutil
-from typing import List, Dict
-import gzip
-import csv
+from typing import Dict, List
+
 from etl.functions.transform import format_dict
 
 log = logging.getLogger(__name__)

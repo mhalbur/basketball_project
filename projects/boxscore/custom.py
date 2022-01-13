@@ -1,6 +1,6 @@
-import arrow
 import logging
 
+import arrow
 from etl.functions.file import write_gzipped_csv_dict
 from etl.functions.nba import get_game_ids
 from nba_api.stats.endpoints import boxscoretraditionalv2
