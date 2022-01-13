@@ -2,6 +2,9 @@ import logging
 import os
 import shutil
 from typing import List
+import gzip
+import csv
+from etl.common.transform import format_dict
 
 log = logging.getLogger(__name__)
 
@@ -27,3 +30,11 @@ def clean_files(files: List):
 def make_directory(directories: List):
     for directory in directories:
         os.mkdir(directory)
+
+
+def write_gzipped_csv_dict(file_path, data, fields):
+    with gzip.open(file_path, 'wt', compresslevel=6) as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        for row in data:
+            parsed_player = format_dict(row=row, fields=fields)
+            writer.writerow(parsed_player)

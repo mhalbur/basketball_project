@@ -19,16 +19,13 @@ def execute_sql(sql_statements: List = None, file_paths: List = None):
                 db.execute_sql(file_path=path)
 
 
-def select_sql(sql_statements: List = None, file_paths: List = None):
+def select_sql(sql_statement: str = None, file_path: str = None):
     with SQLite3() as db:
-        if sql_statements:
-            for statement in sql_statements:
-                rtn = db.select_sql(sql=statement)
+        if sql_statement:
+            rtn = db.select_sql(sql=sql_statement)
+        else:
+            rtn = db.select_sql(file_path=file_path)
 
-        if file_paths:
-            for path in file_paths:
-                rtn = db.select_sql(file_path=path)
-  
         return rtn
 
 

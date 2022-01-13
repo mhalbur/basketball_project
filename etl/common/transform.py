@@ -17,7 +17,7 @@ def list_to_dict(fields: List, default="NULL"):
 
 
 def lower_dict_keys(input_dict: Dict):
-    output_dict = dict((k.lower(), v) for k, v in input_dict.items())
+    output_dict = dict((str(key).lower(), value) for key, value in input_dict.items())
     return output_dict
 
 
