@@ -164,8 +164,6 @@ class SQLite3():
         if clean_table:
             self.clean_table(table=self.table)
 
-        print(load_file_path)
-
         file_extension = load_file_path.split('.')[-1]
 
         if file_extension == "gz":

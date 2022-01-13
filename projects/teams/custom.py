@@ -18,7 +18,7 @@ def teams_main():
 
             city = parsed_team['city']
             state = parsed_team['state']
-            
+
             location = get_long_lat(city, state)
 
             parsed_team['latitude'] = location[0]

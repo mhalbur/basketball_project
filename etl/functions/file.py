@@ -1,7 +1,7 @@
 import logging
 import os
 import shutil
-from typing import List
+from typing import List, Dict
 import gzip
 import csv
 from etl.common.transform import format_dict
@@ -32,7 +32,7 @@ def make_directory(directories: List):
         os.mkdir(directory)
 
 
-def write_gzipped_csv_dict(file_path, data, fields):
+def write_gzipped_csv_dict(file_path: str, data: Dict, fields: List):
     with gzip.open(file_path, 'wt', compresslevel=6) as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         for row in data:

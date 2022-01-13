@@ -20,7 +20,7 @@ def get_team_ids():
 
 
 def get_game_ids():
-    games = select_sql(file_paths=['etl/sql_files/game_select.sql'])
+    games = select_sql(file_path='etl/sql_files/game_select.sql')
 
     game_ids = []
     for game in games:

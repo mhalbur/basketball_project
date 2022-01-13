@@ -9,6 +9,22 @@ Jobs:
   Description: Retrieves NBA Boxscore(s)
   Function: boxscore_api_extract
 
-- Name: Boxscore_Apply
-  Description: Merges NBA Boxscore into boxscore(s) table
-  Function: apply_boxscore
+- Name: Boxscore_Player_Load
+  Description: Loads the files from /mnt/data/working/boxscore to working_boxscore_player_st
+  Function: load_boxscore_player
+
+- Name: Boxscore_Team_Load
+  Description: Loads the files from /mnt/data/working/boxscore to working_boxscore_player_st
+  Function: load_boxscore_team
+
+- Name: Boxscore_Player_Apply
+  Description: Applies data froms staging table
+  Function:  apply_boxscore_player
+
+- Name: Boxscore_Team_Apply
+  Description: Applies data froms staging table
+  Function:  apply_boxscore_team
+
+- Name: Boxscore_Archive
+  Description: Archives the files in /mnt/data/working/boxscore -> /mnt/data/archive/boxscore
+  Function: archive_boxscore_files

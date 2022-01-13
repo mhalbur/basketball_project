@@ -1,14 +1,4 @@
-from functools import wraps
-from typing import List, Dict, Generator
-
-
-def coroutine(func):
-    @wraps(func)
-    def primer(*args, **kwargs):
-        gen = func(*args, **kwargs)
-        next(gen)
-        return gen
-    return primer
+from typing import List, Dict
 
 
 def list_to_dict(fields: List, default="NULL"):
@@ -25,7 +15,7 @@ def dict_to_list(dictionary: Dict):
     return list(dictionary.values())
 
 
-def format_dict(row, fields: List, none_val="NULL", empty_string_val="NULL"):
+def format_dict(row: Dict, fields: List, none_val="NULL", empty_string_val="NULL"):
     fields_dict = list_to_dict(fields=fields)
     lower_row = lower_dict_keys(input_dict=row)
     fields = {}
@@ -40,9 +30,3 @@ def format_dict(row, fields: List, none_val="NULL", empty_string_val="NULL"):
         except KeyError:
             continue
     return fields
-
-
-@coroutine
-def generator_dict_to_list(data: Generator):
-    for row in data:
-        yield list(row.values())

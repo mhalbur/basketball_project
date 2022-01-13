@@ -1,7 +1,7 @@
 insert into working_games_st
     (
-        game_id,
         season_id,
+        game_id,
         game_date,
         matchup 
     )
