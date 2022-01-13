@@ -7,3 +7,4 @@ create table if not exists working_teams_st(
     latitude string,
     longitude string
 );
+

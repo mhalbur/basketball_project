@@ -7,7 +7,7 @@ from etl.connectors.sqlite import SQLite3
 
 log = logging.getLogger(__name__)
 
-def formatter(data: Generator, fields: List, none_val="NULL", empty_string_val="NULL"):
+def format_dict(data: Generator, fields: List, none_val="NULL", empty_string_val="NULL"):
     fields_dict = list_to_dict(fields=fields)
     for row in data:
         lower_row = lower_dict_keys(input_dict=row)

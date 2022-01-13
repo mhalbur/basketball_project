@@ -7,8 +7,20 @@ Jobs:
 
 - Name: Players_API_Extract
   Description: Retrieves NBA Players
-  Function: stage_nba_players
+  Function: players_api_extract
+
+- Name: Players_Load
+  Description: Loads players to working_players_load table
+  Function: load_players
+
+- Name: Players_Stage
+  Description: Loads players to working_players_load table
+  Function: stage_players
 
 - Name: Players_Apply
   Description: Merges NBA Players into players table
   Function: apply_nba_players
+
+- Name: PLayers_Archive
+  Description: Archives the files in /mnt/data/working/players -> /mnt/data/archive/players
+  Function: archive_players_files

@@ -1,15 +1,29 @@
-from etl.connectors.file import File
+import logging
+import os
+import shutil
 from typing import List
-import csv
+
+log = logging.getLogger(__name__)
 
 
 def move_files(files: List, destination: str, overwrite: bool = False):
-    with File() as f:
-        for file in files:
-            f.move_file(file_path=file, destination=destination, overwrite=overwrite)
+    for file in files:
+        log.info(f"Moving file: {file}")
+        try:
+            shutil.move(file, destination)
+        except shutil.Error as e:
+            if overwrite is True:
+                pass
+            else:
+                raise e
 
 
 def clean_files(files: List):
-    with File() as f:
-        for file_path in files:
-            f.clean_file(file_path=file_path)
+    for file in files:
+        log.info(f"Deleting file: {file}")
+        os.remove(file)
+
+
+def make_directory(directories: List):
+    for directory in directories:
+        os.mkdir(directory)

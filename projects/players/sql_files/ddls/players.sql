@@ -7,5 +7,6 @@ create table if not exists players(
     position string,
     age int,
     height string,
+    weight int,
     experience int
 );

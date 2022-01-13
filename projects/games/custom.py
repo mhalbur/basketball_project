@@ -3,7 +3,7 @@ from typing import Dict
 import arrow
 import pandas as pd
 from etl.functions.nba import get_max_game_date
-from etl.common.transform import row_formatter
+from etl.common.transform import format_dict
 from nba_api.stats.endpoints import leaguegamelog
 from projects.games.config import GAME_FIELDS, WORKING_FILE_PATH
 
@@ -21,7 +21,7 @@ def games_api_extract():
     games = game_logs.get_normalized_dict()
 
     for game in games['LeagueGameLog']:
-        row = row_formatter(row=game, fields=GAME_FIELDS)
+        row = format_dict(row=game, fields=GAME_FIELDS)
         game_dict.append(row)
 
     return game_dict

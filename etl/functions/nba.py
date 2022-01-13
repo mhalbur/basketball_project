@@ -8,8 +8,7 @@ log = logging.getLogger(__name__)
 
 
 def get_nba_teams():
-    nba_teams = teams.get_teams()
-    return nba_teams.get_normalized_dict()
+    return teams.get_teams()
 
 
 def get_team_ids():

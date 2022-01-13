@@ -14,6 +14,7 @@ class SQLite3():
         self.database_file = database_file
         self.connector = None
         self.cur = None
+        self.file = None
 
         # logging
         self.table = None
@@ -40,6 +41,9 @@ class SQLite3():
 
         if 'create' in self.sql_types:
             self.log.info(f"Tables created: {self.table_cnt}")
+
+        if self.file:
+            self.file.close()
 
         if isinstance(exc_value, Exception):
             self.connector.rollback()
@@ -160,16 +164,16 @@ class SQLite3():
         if clean_table:
             self.clean_table(table=self.table)
 
+        print(load_file_path)
+
         file_extension = load_file_path.split('.')[-1]
 
         if file_extension == "gz":
-            file = gzip.open(load_file_path, 'rt')
+            self.file = gzip.open(load_file_path, 'rt')
         else:
-            file = open(load_file_path, 'r')
+            self.file = open(load_file_path, 'r')
 
-        rows = csv.reader(file)
+        rows = csv.reader(self.file)
         cnt = self.cur.executemany(sql, rows).rowcount
-
-        file.close()
 
         self.sql_logging(sql=sql, cnt=cnt)

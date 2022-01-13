@@ -1,11 +1,11 @@
-create table if not exists working_players_st(
+create table if not exists working_players_load(
     player_id int,
     team_id int,
-    first_name string,
-    last_name string,
+    player string,
     jersey_number int,
     position string,
     age int,
     height string,
+    weight int,
     experience int
 );

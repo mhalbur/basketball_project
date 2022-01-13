@@ -7,8 +7,16 @@ Jobs:
 
 - Name: Teams_API_Extract
   Description: Retrieves NBA Teams
-  Function: stage_nba_teams
+  Function: teams_api_extract
+
+- Name: Teams_Load
+  Description: Loads teams to working_teams_st table
+  Function: load_teams
 
 - Name: Teams_Apply
-  Description: Merges NBA Teams into teams table
-  Function: apply_nba_teams
+  Description: Merges NBA Players into players table
+  Function: apply_teams
+
+- Name: Teams_Archive
+  Description: Archives the files in /mnt/data/working/players -> /mnt/data/archive/players
+  Function: archive_teams_files

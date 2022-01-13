@@ -25,7 +25,7 @@ def dict_to_list(dictionary: Dict):
     return list(dictionary.values())
 
 
-def row_formatter(row, fields: List, none_val="NULL", empty_string_val="NULL"):
+def format_dict(row, fields: List, none_val="NULL", empty_string_val="NULL"):
     fields_dict = list_to_dict(fields=fields)
     lower_row = lower_dict_keys(input_dict=row)
     fields = {}

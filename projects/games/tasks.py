@@ -1,7 +1,7 @@
 import glob
 import logging
 
-from etl.functions.database import execute_sql, load_sql
+from etl.functions.database import clean_table, execute_sql, load_sql
 from etl.functions.file import clean_files, move_files
 from projects.games.config import (ARCHIVE_FILE_PATH, DDL_FILE_PATH,
                                    SQL_FILE_PATH, WORKING_FILE_PATH)
@@ -25,9 +25,10 @@ def get_games():
 
 
 def load_games():
+    clean_table(tables=['working_games_st'])
     log.info("Loading games to SQLite...")
     files = glob.glob(pathname=f'{WORKING_FILE_PATH}/*')
-    load_sql(file_paths=files, sql_file_path=f'{SQL_FILE_PATH}/games_stage.sql')
+    load_sql(file_paths=files, sql_file_path=f'{SQL_FILE_PATH}/games_stage.sql', clean_table=False)
 
 
 def apply_games():
